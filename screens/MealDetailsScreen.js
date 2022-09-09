@@ -1,4 +1,6 @@
-import { useLayoutEffect } from 'react';
+// CONTEXT API
+import { useContext, useLayoutEffect } from 'react';
+
 import {
   Text,
   StyleSheet,
@@ -7,6 +9,10 @@ import {
   ScrollView,
   Button,
 } from 'react-native';
+
+// REDUX
+import { useDispatch, useSelector } from 'react-redux';
+
 import IconButton from '../components/IconButton';
 import List from '../components/MealDetail/List';
 import Subtitle from '../components/MealDetail/Subtitle';
@@ -14,26 +20,59 @@ import MealDetails from '../components/MealDetails';
 
 import { MEALS } from '../data/dummy-data';
 
-export default function MealDetailsScreen({ route, navigation }) {
-  const mealId = route.params.mealId;
+// CONTEXT API
+// import { FavouritesContext } from '../store/context/favourites-context';
 
+// REDUX
+import { addFavourite, removeFavourite } from '../store/redux/favourites';
+
+export default function MealDetailsScreen({ route, navigation }) {
+  // CONTEXT API
+  // const favouriteMealsCtx = useContext(FavouritesContext);
+
+  // REDUX
+  const favouriteMealIds = useSelector((state) => state.favouriteMeals.ids);
+  // REDUX
+  const dispatch = useDispatch();
+
+  const mealId = route.params.mealId;
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  function headerButtonPressHandler() {}
+  // CONTEXT API
+  // const mealIsFavourite = favouriteMealsCtx.ids.includes(mealId);
+
+  // REDUX
+  const mealIsFavourite = favouriteMealIds.includes(mealId);
+
+  function changeFavouriteStatusHandler() {
+    if (mealIsFavourite) {
+      // CONTEXT API
+      // favouriteMealsCtx.removeFavourite(mealId);
+
+      // REDUX
+      dispatch(removeFavourite({ id: mealId }));
+    } else {
+      // CONTEXT API
+      // favouriteMealsCtx.addFavourite(mealId);
+
+      // REDUX
+      dispatch(addFavourite({ id: mealId }));
+    }
+  }
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
         return (
           <IconButton
-            icon="star"
+            icon={mealIsFavourite ? 'star' : 'star-outline'}
             color="white"
-            onPress={headerButtonPressHandler}
+            onPress={changeFavouriteStatusHandler}
           />
         );
       },
     });
-  }, [navigation, headerButtonPressHandler]);
+  }, [navigation, changeFavouriteStatusHandler]);
 
   return (
     <ScrollView style={styles.rootContainer}>
